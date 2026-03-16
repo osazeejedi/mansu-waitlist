@@ -133,13 +133,13 @@ export default function App() {
         </div>
 
         {/* Scroll Indicator */}
-        <motion.div 
+        {/* <motion.div 
           animate={{ y: [0, 8, 0] }}
           transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
           className="absolute bottom-12 left-1/2 -translate-x-1/2"
         >
           <ChevronDown className="w-5 h-5 text-white/15" />
-        </motion.div>
+        </motion.div> */}
       </section>
 
       {/* Stats Bar */}
