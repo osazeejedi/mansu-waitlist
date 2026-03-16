@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Otterco';
+  src: url('../assets/fonts/Otterco-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Otterco';
+  src: url('../assets/fonts/Otterco-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Otterco';
+  src: url('../assets/fonts/Otterco-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Otterco';
+  src: url('../assets/fonts/Otterco-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Otterco';
+  src: url('../assets/fonts/Otterco-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OttercoDisplay';
+  src: url('../assets/fonts/OttercoDisplay-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-body: 'Otterco', system-ui, sans-serif;
+  --font-display: 'OttercoDisplay', 'Otterco', system-ui, sans-serif;
+}
