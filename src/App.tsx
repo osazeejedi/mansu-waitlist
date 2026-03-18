@@ -96,7 +96,7 @@ export default function App() {
               <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
               The Future of African Finance
             </span> */}
-           <h1 className="font-display text-[clamp(2.5rem,6vw,6rem)] uppercase tracking-[-0.04em] leading-[0.9] mb-8">
+           <h1 className="font-display text-[clamp(3.2rem,8vw,6.5rem)] uppercase tracking-[-0.02em] md:tracking-[-0.04em] leading-[0.9] mb-8">
   Ease is <br />
   <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-purple-600">
     Coming
