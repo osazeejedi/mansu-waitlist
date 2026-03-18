@@ -10,19 +10,42 @@ import { ArrowRight, CheckCircle2, Mail, Shield, Zap, Wallet, Globe, TrendingUp,
 export default function App() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      setSubmitted(true);
-      setEmail('');
+    if (!email) return;
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setSubmitted(true);
+        setEmail('');
+      } else {
+        setError(result.message || 'Something went wrong. Please try again.');
+      }
+    } catch {
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#060208] text-white font-body selection:bg-purple-500/30">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-6 lg:px-12 py-5 flex justify-between items-center backdrop-blur-xl bg-[#060208]/60 border-b border-white/[0.04]">
+      <nav className="fixed top-0 left-0 right-0 z-50 px-6 lg:px-12 py-5 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <img 
             src="/logo.png" 
@@ -32,12 +55,12 @@ export default function App() {
           />
           <span className="text-lg font-bold tracking-tight">Mansu</span>
         </div>
-        <div className="hidden md:flex gap-10 text-[13px] font-medium tracking-wide text-white/40">
+        {/* <div className="hidden md:flex gap-10 text-[13px] font-medium tracking-wide text-white/40">
           <a href="#about" className="hover:text-white transition-colors duration-300">About</a>
           <a href="#features" className="hover:text-white transition-colors duration-300">Features</a>
           <a href="#showcase" className="hover:text-white transition-colors duration-300">Showcase</a>
           <a href="#waitlist" className="hover:text-white transition-colors duration-300">Waitlist</a>
-        </div>
+        </div> */}
         <button 
           onClick={() => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })}
           className="px-6 py-2.5 rounded-full bg-white/[0.06] border border-white/[0.08] text-[11px] font-semibold uppercase tracking-[0.15em] hover:bg-purple-500 hover:border-purple-500 transition-all duration-500"
@@ -51,9 +74,12 @@ export default function App() {
         {/* Background */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/hero-bg.png" 
+            src="/hero-bg.webp" 
             alt="Neon Background" 
             className="w-full h-full object-cover opacity-50 scale-110 animate-pulse-slow"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
             referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#060208] via-[#060208]/40 to-[#060208]" />
@@ -70,13 +96,13 @@ export default function App() {
               <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
               The Future of African Finance
             </span> */}
-            <h1 className="font-display text-7xl md:text-[10rem] lg:text-[12rem] uppercase tracking-[-0.04em] leading-[0.82] mb-8">
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl uppercase tracking-[-0.04em] leading-[0.82] mb-8">
               Ease is <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-purple-600">Coming</span>
             </h1>
-            <p className="text-base md:text-lg text-white/45 max-w-xl mx-auto mb-14 font-light leading-[1.7]">
+            {/* <p className="text-base md:text-lg text-white/45 max-w-xl mx-auto mb-14 font-light leading-[1.7]">
               We make buying and selling crypto safer, cheaper, and more enjoyable for millions of Africans. One app, every move.
-            </p>
+            </p> */}
           </motion.div>
 
           <motion.div
@@ -103,18 +129,41 @@ export default function App() {
                         placeholder="Enter your email" 
                         required
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="bg-transparent border-none outline-none w-full text-sm py-3 placeholder:text-white/20 font-light"
+                        onChange={(e) => { setEmail(e.target.value); setError(''); }}
+                        disabled={isLoading}
+                        className="bg-transparent border-none outline-none w-full text-sm py-3 placeholder:text-white/20 font-light disabled:opacity-50"
                       />
                     </div>
                     <button 
                       type="submit"
-                      className="bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white px-8 py-3.5 rounded-xl font-semibold text-[12px] uppercase tracking-[0.15em] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-500 flex items-center justify-center gap-2 whitespace-nowrap"
+                      disabled={isLoading}
+                      className="bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white px-8 py-3.5 rounded-xl font-semibold text-[12px] uppercase tracking-[0.15em] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-500 flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      Join Waitlist
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      {isLoading ? (
+                        <>
+                          <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Joining...
+                        </>
+                      ) : (
+                        <>
+                          Join Waitlist
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </>
+                      )}
                     </button>
                   </div>
+                  {error && (
+                    <motion.p 
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-3 text-sm text-red-400/90 text-center font-light"
+                    >
+                      {error}
+                    </motion.p>
+                  )}
                 </motion.form>
               ) : (
                 <motion.div 
@@ -171,7 +220,10 @@ export default function App() {
         </div>
       </section> */}
 
-      {/* About Section */}
+      {/* ===== COMMENTED OUT SECTIONS ===== */}
+
+      {/* About Section - commented out */}
+      {false && (
       <section id="about" className="py-32 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
@@ -240,8 +292,10 @@ export default function App() {
           </div>
         </div>
       </section>
+      )}
 
-      {/* Features Section */}
+      {/* Features Section - commented out */}
+      {false && (
       <section id="features" className="py-32 px-6 relative">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(139,92,246,0.04),transparent_60%)]" />
         <div className="max-w-7xl mx-auto relative">
@@ -306,8 +360,10 @@ export default function App() {
           </div>
         </div>
       </section>
+      )}
 
-      {/* Image Showcase */}
+      {/* Image Showcase - commented out */}
+      {false && (
       <section id="showcase" className="py-32 px-6">
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -351,8 +407,10 @@ export default function App() {
           </div>
         </div>
       </section>
+      )}
 
-      {/* CTA Section */}
+      {/* CTA Section - commented out */}
+      {false && (
       <section className="py-32 px-6 relative">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.06),transparent_60%)]" />
         <div className="max-w-3xl mx-auto text-center relative">
@@ -379,8 +437,10 @@ export default function App() {
           </motion.div>
         </div>
       </section>
+      )}
 
-      {/* Footer */}
+      {/* Footer - commented out */}
+      {false && (
       <footer className="py-16 px-6 border-t border-white/[0.04]">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-12">
@@ -427,6 +487,7 @@ export default function App() {
           </div>
         </div>
       </footer>
+      )}
 
       <style>{`
         @keyframes pulse-slow {
