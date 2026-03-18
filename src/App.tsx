@@ -96,10 +96,12 @@ export default function App() {
               <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
               The Future of African Finance
             </span> */}
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl uppercase tracking-[-0.04em] leading-[0.82] mb-8">
-              Ease is <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-purple-600">Coming</span>
-            </h1>
+           <h1 className="font-display text-[clamp(2.5rem,6vw,6rem)] uppercase tracking-[-0.04em] leading-[0.9] mb-8">
+  Ease is <br />
+  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-purple-600">
+    Coming
+  </span>
+</h1>
             {/* <p className="text-base md:text-lg text-white/45 max-w-xl mx-auto mb-14 font-light leading-[1.7]">
               We make buying and selling crypto safer, cheaper, and more enjoyable for millions of Africans. One app, every move.
             </p> */}
