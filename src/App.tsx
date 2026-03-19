@@ -779,8 +779,8 @@ export default function App() {
 
       <style>{`
         @keyframes pulse-slow-mobile {
-          0%, 100% { transform: translateX(-25px) scale(1.03); opacity: 0.5; }
-          50% { transform: translateX(-25px) scale(1.06); opacity: 0.7; }
+          0%, 100% { transform: translateX(-30px) scale(1.15); opacity: 0.5; }
+          50% { transform: translateX(-30px) scale(1.18); opacity: 0.7; }
         }
         @keyframes pulse-slow {
           0%, 100% { transform: scale(1.1); opacity: 0.5; }
