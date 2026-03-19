@@ -76,7 +76,7 @@ export default function App() {
           <img 
             src="/hero-bg.webp" 
             alt="Neon Background" 
-            className="w-full h-full object-cover opacity-50 scale-110 animate-pulse-slow"
+            className="w-full h-full object-cover object-[52%_50%] md:object-center scale-95 md:scale-100 opacity-50 animate-pulse-slow"
             loading="eager"
             fetchPriority="high"
             decoding="async"
@@ -492,12 +492,21 @@ export default function App() {
       )}
 
       <style>{`
+        @keyframes pulse-slow-mobile {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 0.7; }
+        }
         @keyframes pulse-slow {
           0%, 100% { transform: scale(1.1); opacity: 0.5; }
           50% { transform: scale(1.15); opacity: 0.7; }
         }
         .animate-pulse-slow {
-          animation: pulse-slow 10s ease-in-out infinite;
+          animation: pulse-slow-mobile 10s ease-in-out infinite;
+        }
+        @media (min-width: 768px) {
+          .animate-pulse-slow {
+            animation: pulse-slow 10s ease-in-out infinite;
+          }
         }
       `}</style>
     </div>
