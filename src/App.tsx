@@ -3,19 +3,145 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, CheckCircle2, Mail, Shield, Zap, Wallet, Globe, TrendingUp, Users, ChevronDown } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Mail, Shield, Zap, Wallet, Globe, TrendingUp, Users, ChevronDown, User, Phone, MapPin, Search } from 'lucide-react';
+import { countries } from './countries';
+
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+}
+
+interface FormErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+}
 
 export default function App() {
-  const [email, setEmail] = useState('');
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+  });
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Country dropdown state
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const filteredCountries = countries.filter(country =>
+    country.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+        setSearchQuery('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Focus search when dropdown opens
+  useEffect(() => {
+    if (isDropdownOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isDropdownOpen]);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isModalOpen]);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        setIsModalOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isModalOpen]);
+
+  // Auto-close modal after success
+  useEffect(() => {
+    if (submitted && isModalOpen) {
+      const timer = setTimeout(() => {
+        setIsModalOpen(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted, isModalOpen]);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+    setSubmitted(false);
+    setFormErrors({});
+    setError('');
+  };
+
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+    setError('');
+  };
+
+  const validateForm = (): boolean => {
+    const errors: FormErrors = {};
+
+    if (!formData.name.trim()) {
+      errors.name = 'Name is required';
+    } else if (formData.name.trim().length < 2) {
+      errors.name = 'Please enter a valid name';
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email';
+    }
+
+    if (!formData.phone.trim()) {
+      errors.phone = 'Phone number is required';
+    } else if (!/^[\+]?[\d\s\-\(\)]{7,20}$/.test(formData.phone)) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+
+    if (!formData.location) {
+      errors.location = 'Please select your country';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!validateForm()) return;
 
     setIsLoading(true);
     setError('');
@@ -24,14 +150,19 @@ export default function App() {
       const response = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          location: formData.location,
+        }),
       });
 
       const result = await response.json();
 
       if (response.ok && result.success) {
         setSubmitted(true);
-        setEmail('');
+        setFormData({ name: '', email: '', phone: '', location: '' });
       } else {
         setError(result.message || 'Something went wrong. Please try again.');
       }
@@ -62,7 +193,7 @@ export default function App() {
           <a href="#waitlist" className="hover:text-white transition-colors duration-300">Waitlist</a>
         </div> */}
         <button 
-          onClick={() => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })}
+          onClick={openModal}
           className="px-6 py-2.5 rounded-full bg-white/[0.06] border border-white/[0.08] text-[11px] font-semibold uppercase tracking-[0.15em] hover:bg-purple-500 hover:border-purple-500 transition-all duration-500"
         >
           Join Waitlist
@@ -72,16 +203,18 @@ export default function App() {
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-20">
         {/* Background */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="/hero-bg.webp" 
-            alt="Neon Background" 
-            className="w-full h-full object-cover object-[52%_50%] md:object-center scale-95 md:scale-100 opacity-70 animate-pulse-slow"
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-            referrerPolicy="no-referrer"
-          />
+        <div className="absolute inset-0 z-0 oveflow-hidden">
+          <div className="w-full h-full animate-pulse-slow">
+            <img 
+              src="/hero-backg.webp" 
+              alt="Neon Background" 
+              className="w-full h-full object-cover"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              referrerPolicy="no-referrer"
+            />
+          </div>
           <div className="absolute inset-0 bg-gradient-to-b from-[#060208] via-[#060208]/40 to-[#060208]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(139,92,246,0.08),transparent_70%)]" />
         </div>
@@ -107,79 +240,19 @@ export default function App() {
             </p> */}
           </motion.div>
 
+          {/* Hero CTA Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            id="waitlist"
-            className="max-w-lg mx-auto"
           >
-            <AnimatePresence mode="wait">
-              {!submitted ? (
-                <motion.form 
-                  key="form"
-                  onSubmit={handleSubmit} 
-                  className="relative group"
-                  exit={{ opacity: 0, scale: 0.95 }}
-                >
-                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 via-fuchsia-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                  <div className="relative flex flex-col sm:flex-row gap-3 p-2 bg-white/[0.04] backdrop-blur-2xl rounded-2xl border border-white/[0.08] group-hover:border-purple-500/30 transition-all duration-500">
-                    <div className="flex-1 flex items-center px-4 gap-3">
-                      <Mail className="w-4 h-4 text-white/25 flex-shrink-0" />
-                      <input 
-                        type="email" 
-                        placeholder="Enter your email" 
-                        required
-                        value={email}
-                        onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                        disabled={isLoading}
-                        className="bg-transparent border-none outline-none w-full text-sm py-3 placeholder:text-white/20 font-light disabled:opacity-50"
-                      />
-                    </div>
-                    <button 
-                      type="submit"
-                      disabled={isLoading}
-                      className="bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white px-8 py-3.5 rounded-xl font-semibold text-[12px] uppercase tracking-[0.15em] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-500 flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      {isLoading ? (
-                        <>
-                          <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                          Joining...
-                        </>
-                      ) : (
-                        <>
-                          Join Waitlist
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  {error && (
-                    <motion.p 
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-3 text-sm text-red-400/90 text-center font-light"
-                    >
-                      {error}
-                    </motion.p>
-                  )}
-                </motion.form>
-              ) : (
-                <motion.div 
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="p-8 bg-purple-500/[0.08] backdrop-blur-2xl rounded-2xl border border-purple-500/30 text-center"
-                >
-                  <CheckCircle2 className="w-10 h-10 text-purple-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">You're on the list!</h3>
-                  <p className="text-sm text-white/45 font-light">We'll notify you as soon as we launch. Get ready for ease.</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <button
+              onClick={openModal}
+              className="group inline-flex items-center gap-3 bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white px-10 py-4 rounded-full font-semibold text-[13px] uppercase tracking-[0.12em] hover:shadow-[0_0_40px_rgba(168,85,247,0.4)] hover:scale-105 transition-all duration-500"
+            >
+              Join The Waitlist
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+            </button>
           </motion.div>
         </div>
 
@@ -491,21 +564,237 @@ export default function App() {
       </footer>
       )}
 
+      {/* Waitlist Modal Overlay */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center px-4 sm:px-6"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setIsModalOpen(false);
+            }}
+          >
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-xl" />
+            
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 40 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="absolute -top-12 right-0 text-white/40 hover:text-white text-sm font-light tracking-wide transition-colors duration-300 flex items-center gap-2"
+              >
+                Press ESC or click outside
+              </button>
+
+              <AnimatePresence mode="wait">
+                {!submitted ? (
+                  <motion.form
+                    key="modal-form"
+                    onSubmit={handleSubmit}
+                    className="relative group"
+                    exit={{ opacity: 0, scale: 0.95 }}
+                  >
+                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 via-fuchsia-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-60" />
+                    <div className="relative p-6 sm:p-8 bg-[#0d0a14]/95 backdrop-blur-2xl rounded-2xl border border-white/[0.1] shadow-[0_0_80px_rgba(139,92,246,0.15)] space-y-4">
+                      
+                      {/* Modal Header */}
+                      <div className="text-center mb-2">
+                        <h2 className="font-display text-2xl uppercase tracking-tight mb-1">Join the Waitlist</h2>
+                        <p className="text-xs text-white/35 font-light">Be the first to experience ease.</p>
+                      </div>
+
+                      {/* Full Name */}
+                      <div>
+                        <div className={`flex items-center px-4 gap-3 rounded-xl bg-white/[0.04] border transition-colors duration-300 ${formErrors.name ? 'border-red-500/50' : 'border-white/[0.06] focus-within:border-purple-500/40'}`}>
+                          <User className="w-4 h-4 text-white/25 flex-shrink-0" />
+                          <input
+                            type="text"
+                            placeholder="Full Name"
+                            value={formData.name}
+                            onChange={(e) => handleInputChange('name', e.target.value)}
+                            disabled={isLoading}
+                            className="bg-transparent border-none outline-none w-full text-sm py-3 placeholder:text-white/20 font-light disabled:opacity-50"
+                          />
+                        </div>
+                        {formErrors.name && (
+                          <p className="mt-1 text-xs text-red-400/80 text-left pl-1">{formErrors.name}</p>
+                        )}
+                      </div>
+
+                      {/* Email */}
+                      <div>
+                        <div className={`flex items-center px-4 gap-3 rounded-xl bg-white/[0.04] border transition-colors duration-300 ${formErrors.email ? 'border-red-500/50' : 'border-white/[0.06] focus-within:border-purple-500/40'}`}>
+                          <Mail className="w-4 h-4 text-white/25 flex-shrink-0" />
+                          <input
+                            type="email"
+                            placeholder="Email Address"
+                            value={formData.email}
+                            onChange={(e) => handleInputChange('email', e.target.value)}
+                            disabled={isLoading}
+                            className="bg-transparent border-none outline-none w-full text-sm py-3 placeholder:text-white/20 font-light disabled:opacity-50"
+                          />
+                        </div>
+                        {formErrors.email && (
+                          <p className="mt-1 text-xs text-red-400/80 text-left pl-1">{formErrors.email}</p>
+                        )}
+                      </div>
+
+                      {/* Phone Number */}
+                      <div>
+                        <div className={`flex items-center px-4 gap-3 rounded-xl bg-white/[0.04] border transition-colors duration-300 ${formErrors.phone ? 'border-red-500/50' : 'border-white/[0.06] focus-within:border-purple-500/40'}`}>
+                          <Phone className="w-4 h-4 text-white/25 flex-shrink-0" />
+                          <input
+                            type="tel"
+                            placeholder="Phone Number"
+                            value={formData.phone}
+                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                            disabled={isLoading}
+                            className="bg-transparent border-none outline-none w-full text-sm py-3 placeholder:text-white/20 font-light disabled:opacity-50"
+                          />
+                        </div>
+                        {formErrors.phone && (
+                          <p className="mt-1 text-xs text-red-400/80 text-left pl-1">{formErrors.phone}</p>
+                        )}
+                      </div>
+
+                      {/* Location Dropdown */}
+                      <div ref={dropdownRef} className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                          disabled={isLoading}
+                          className={`w-full flex items-center px-4 gap-3 rounded-xl bg-white/[0.04] border transition-colors duration-300 cursor-pointer disabled:opacity-50 ${formErrors.location ? 'border-red-500/50' : 'border-white/[0.06] hover:border-purple-500/40'}`}
+                        >
+                          <MapPin className="w-4 h-4 text-white/25 flex-shrink-0" />
+                          <span className={`flex-1 text-left text-sm py-3 font-light ${formData.location ? 'text-white' : 'text-white/20'}`}>
+                            {formData.location || 'Select Country'}
+                          </span>
+                          <ChevronDown className={`w-4 h-4 text-white/25 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {isDropdownOpen && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-[#1a1025] backdrop-blur-2xl border border-white/[0.1] rounded-xl shadow-2xl shadow-black/50 z-50 overflow-hidden">
+                            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/[0.06]">
+                              <Search className="w-3.5 h-3.5 text-white/30" />
+                              <input
+                                ref={searchInputRef}
+                                type="text"
+                                placeholder="Search countries..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="bg-transparent border-none outline-none w-full text-xs placeholder:text-white/20 font-light text-white"
+                              />
+                            </div>
+                            <div className="max-h-48 overflow-y-auto scrollbar-thin">
+                              {filteredCountries.length === 0 ? (
+                                <div className="px-4 py-3 text-xs text-white/30 text-center">No countries found</div>
+                              ) : (
+                                filteredCountries.map((country) => (
+                                  <button
+                                    key={country}
+                                    type="button"
+                                    onClick={() => {
+                                      handleInputChange('location', country);
+                                      setIsDropdownOpen(false);
+                                      setSearchQuery('');
+                                    }}
+                                    className={`w-full text-left px-4 py-2.5 text-sm font-light transition-colors duration-200 hover:bg-purple-500/20 ${
+                                      formData.location === country ? 'text-purple-400 bg-purple-500/10' : 'text-white/60'
+                                    }`}
+                                  >
+                                    {country}
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        {formErrors.location && (
+                          <p className="mt-1 text-xs text-red-400/80 text-left pl-1">{formErrors.location}</p>
+                        )}
+                      </div>
+
+                      {/* Submit Button */}
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white px-8 py-3.5 rounded-xl font-semibold text-[12px] uppercase tracking-[0.15em] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-500 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+                      >
+                        {isLoading ? (
+                          <>
+                            <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                            Joining...
+                          </>
+                        ) : (
+                          <>
+                            Join Waitlist
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* General error */}
+                    {error && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-3 text-sm text-red-400/90 text-center font-light"
+                      >
+                        {error}
+                      </motion.p>
+                    )}
+                  </motion.form>
+                ) : (
+                  <motion.div
+                    key="modal-success"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-10 bg-[#0d0a14]/95 backdrop-blur-2xl rounded-2xl border border-purple-500/30 text-center shadow-[0_0_80px_rgba(139,92,246,0.15)]"
+                  >
+                    <CheckCircle2 className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">You're on the list!</h3>
+                    <p className="text-sm text-white/45 font-light">We'll notify you as soon as we launch. Get ready for ease.</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <style>{`
         @keyframes pulse-slow-mobile {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 0.7; }
+          0%, 100% { transform: translateX(-25px) scale(1.03); opacity: 0.5; }
+          50% { transform: translateX(-25px) scale(1.06); opacity: 0.7; }
         }
         @keyframes pulse-slow {
           0%, 100% { transform: scale(1.1); opacity: 0.5; }
           50% { transform: scale(1.15); opacity: 0.7; }
         }
+
         .animate-pulse-slow {
           animation: pulse-slow-mobile 10s ease-in-out infinite;
+          transform-origin: 50% 50%;
         }
         @media (min-width: 768px) {
           .animate-pulse-slow {
             animation: pulse-slow 10s ease-in-out infinite;
+            transform-origin: 60% 50%;
           }
         }
       `}</style>

@@ -9,6 +9,12 @@ const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
+const isValidPhone = (phone: string): boolean => {
+  // Allow international phone numbers with optional + and spaces/dashes
+  const phoneRegex = /^[\+]?[\d\s\-\(\)]{7,20}$/;
+  return phoneRegex.test(phone.trim());
+};
+
 // Sanitization
 const sanitizeInput = (input: string): string => {
   return input.trim().replace(/[<>]/g, '');
@@ -29,24 +35,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { email } = req.body;
+    const { name, email, phone, location } = req.body;
 
-    // Validate required field
-    if (!email) {
+    // Validate required fields
+    if (!name || !email || !phone || !location) {
       return res.status(400).json({
         success: false,
-        message: 'Email is required',
+        message: 'All fields are required',
       });
     }
 
-    // Sanitize input
+    // Sanitize inputs
+    const sanitizedName = sanitizeInput(name);
     const sanitizedEmail = sanitizeInput(email);
+    const sanitizedPhone = sanitizeInput(phone);
+    const sanitizedLocation = sanitizeInput(location);
+
+    // Validate name
+    if (sanitizedName.length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid name',
+      });
+    }
 
     // Validate email format
     if (!isValidEmail(sanitizedEmail)) {
       return res.status(400).json({
         success: false,
         message: 'Please enter a valid email address',
+      });
+    }
+
+    // Validate phone format
+    if (!isValidPhone(sanitizedPhone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid phone number',
       });
     }
 
@@ -60,11 +85,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Prepare data for Google Apps Script
-    // Sending email with empty name/phone to match the existing sheet structure
     const payload = {
-      fullName: '',
+      fullName: sanitizedName,
       email: sanitizedEmail,
-      phone: '',
+      phone: sanitizedPhone,
+      location: sanitizedLocation,
     };
 
     console.log('Sending to Google Apps Script:', payload);
