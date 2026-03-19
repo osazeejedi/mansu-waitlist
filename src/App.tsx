@@ -76,7 +76,7 @@ export default function App() {
           <img 
             src="/hero-bg.webp" 
             alt="Neon Background" 
-            className="w-full h-full object-cover object-[52%_50%] md:object-center scale-95 md:scale-100 opacity-50 animate-pulse-slow"
+            className="w-full h-full object-cover object-[52%_50%] md:object-center scale-95 md:scale-100 opacity-70 animate-pulse-slow"
             loading="eager"
             fetchPriority="high"
             decoding="async"
