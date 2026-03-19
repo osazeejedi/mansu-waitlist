@@ -8,6 +8,199 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, CheckCircle2, Mail, Shield, Zap, Wallet, Globe, TrendingUp, Users, ChevronDown, User, Phone, MapPin, Search } from 'lucide-react';
 import { countries } from './countries';
 
+
+// Add this data near the top of your component or in a separate file
+const phonePrefixes = [
+  // Africa
+  { code: '+234', country: 'Nigeria', flag: '🇳🇬' },
+  { code: '+27', country: 'South Africa', flag: '🇿🇦' },
+  { code: '+233', country: 'Ghana', flag: '🇬🇭' },
+  { code: '+254', country: 'Kenya', flag: '🇰🇪' },
+  { code: '+255', country: 'Tanzania', flag: '🇹🇿' },
+  { code: '+256', country: 'Uganda', flag: '🇺🇬' },
+  { code: '+251', country: 'Ethiopia', flag: '🇪🇹' },
+  { code: '+212', country: 'Morocco', flag: '🇲🇦' },
+  { code: '+213', country: 'Algeria', flag: '🇩🇿' },
+  { code: '+20', country: 'Egypt', flag: '🇪🇬' },
+  { code: '+225', country: 'Côte d\'Ivoire', flag: '🇨🇮' },
+  { code: '+237', country: 'Cameroon', flag: '🇨🇲' },
+  { code: '+221', country: 'Senegal', flag: '🇸🇳' },
+  { code: '+243', country: 'DR Congo', flag: '🇨🇩' },
+  { code: '+242', country: 'Congo', flag: '🇨🇬' },
+  { code: '+216', country: 'Tunisia', flag: '🇹🇳' },
+  { code: '+218', country: 'Libya', flag: '🇱🇾' },
+  { code: '+249', country: 'Sudan', flag: '🇸🇩' },
+  { code: '+252', country: 'Somalia', flag: '🇸🇴' },
+  { code: '+253', country: 'Djibouti', flag: '🇩🇯' },
+  { code: '+291', country: 'Eritrea', flag: '🇪🇷' },
+  { code: '+250', country: 'Rwanda', flag: '🇷🇼' },
+  { code: '+257', country: 'Burundi', flag: '🇧🇮' },
+  { code: '+258', country: 'Mozambique', flag: '🇲🇿' },
+  { code: '+260', country: 'Zambia', flag: '🇿🇲' },
+  { code: '+263', country: 'Zimbabwe', flag: '🇿🇼' },
+  { code: '+264', country: 'Namibia', flag: '🇳🇦' },
+  { code: '+265', country: 'Malawi', flag: '🇲🇼' },
+  { code: '+266', country: 'Lesotho', flag: '🇱🇸' },
+  { code: '+267', country: 'Botswana', flag: '🇧🇼' },
+  { code: '+268', country: 'Eswatini', flag: '🇸🇿' },
+  { code: '+269', country: 'Comoros', flag: '🇰🇲' },
+  { code: '+220', country: 'Gambia', flag: '🇬🇲' },
+  { code: '+222', country: 'Mauritania', flag: '🇲🇷' },
+  { code: '+223', country: 'Mali', flag: '🇲🇱' },
+  { code: '+224', country: 'Guinea', flag: '🇬🇳' },
+  { code: '+226', country: 'Burkina Faso', flag: '🇧🇫' },
+  { code: '+227', country: 'Niger', flag: '🇳🇪' },
+  { code: '+228', country: 'Togo', flag: '🇹🇬' },
+  { code: '+229', country: 'Benin', flag: '🇧🇯' },
+  { code: '+230', country: 'Mauritius', flag: '🇲🇺' },
+  { code: '+231', country: 'Liberia', flag: '🇱🇷' },
+  { code: '+232', country: 'Sierra Leone', flag: '🇸🇱' },
+  { code: '+235', country: 'Chad', flag: '🇹🇩' },
+  { code: '+236', country: 'Central African Republic', flag: '🇨🇫' },
+  { code: '+238', country: 'Cape Verde', flag: '🇨🇻' },
+  { code: '+239', country: 'São Tomé and Príncipe', flag: '🇸🇹' },
+  { code: '+240', country: 'Equatorial Guinea', flag: '🇬🇶' },
+  { code: '+241', country: 'Gabon', flag: '🇬🇦' },
+  { code: '+244', country: 'Angola', flag: '🇦🇴' },
+  { code: '+245', country: 'Guinea-Bissau', flag: '🇬🇼' },
+  { code: '+248', country: 'Seychelles', flag: '🇸🇨' },
+  { code: '+261', country: 'Madagascar', flag: '🇲🇬' },
+  { code: '+262', country: 'Réunion', flag: '🇷🇪' },
+
+  // Americas
+  { code: '+1', country: 'USA', flag: '🇺🇸' },
+  { code: '+1', country: 'Canada', flag: '🇨🇦' },
+  { code: '+52', country: 'Mexico', flag: '🇲🇽' },
+  { code: '+55', country: 'Brazil', flag: '🇧🇷' },
+  { code: '+54', country: 'Argentina', flag: '🇦🇷' },
+  { code: '+56', country: 'Chile', flag: '🇨🇱' },
+  { code: '+57', country: 'Colombia', flag: '🇨🇴' },
+  { code: '+58', country: 'Venezuela', flag: '🇻🇪' },
+  { code: '+51', country: 'Peru', flag: '🇵🇪' },
+  { code: '+593', country: 'Ecuador', flag: '🇪🇨' },
+  { code: '+591', country: 'Bolivia', flag: '🇧🇴' },
+  { code: '+595', country: 'Paraguay', flag: '🇵🇾' },
+  { code: '+598', country: 'Uruguay', flag: '🇺🇾' },
+  { code: '+592', country: 'Guyana', flag: '🇬🇾' },
+  { code: '+597', country: 'Suriname', flag: '🇸🇷' },
+  { code: '+53', country: 'Cuba', flag: '🇨🇺' },
+  { code: '+1-809', country: 'Dominican Republic', flag: '🇩🇴' },
+  { code: '+509', country: 'Haiti', flag: '🇭🇹' },
+  { code: '+502', country: 'Guatemala', flag: '🇬🇹' },
+  { code: '+503', country: 'El Salvador', flag: '🇸🇻' },
+  { code: '+504', country: 'Honduras', flag: '🇭🇳' },
+  { code: '+505', country: 'Nicaragua', flag: '🇳🇮' },
+  { code: '+506', country: 'Costa Rica', flag: '🇨🇷' },
+  { code: '+507', country: 'Panama', flag: '🇵🇦' },
+  { code: '+1-876', country: 'Jamaica', flag: '🇯🇲' },
+  { code: '+1-868', country: 'Trinidad and Tobago', flag: '🇹🇹' },
+  { code: '+1-246', country: 'Barbados', flag: '🇧🇧' },
+  { code: '+1-758', country: 'Saint Lucia', flag: '🇱🇨' },
+
+  // Europe
+  { code: '+44', country: 'United Kingdom', flag: '🇬🇧' },
+  { code: '+33', country: 'France', flag: '🇫🇷' },
+  { code: '+49', country: 'Germany', flag: '🇩🇪' },
+  { code: '+39', country: 'Italy', flag: '🇮🇹' },
+  { code: '+34', country: 'Spain', flag: '🇪🇸' },
+  { code: '+351', country: 'Portugal', flag: '🇵🇹' },
+  { code: '+31', country: 'Netherlands', flag: '🇳🇱' },
+  { code: '+32', country: 'Belgium', flag: '🇧🇪' },
+  { code: '+41', country: 'Switzerland', flag: '🇨🇭' },
+  { code: '+43', country: 'Austria', flag: '🇦🇹' },
+  { code: '+46', country: 'Sweden', flag: '🇸🇪' },
+  { code: '+47', country: 'Norway', flag: '🇳🇴' },
+  { code: '+45', country: 'Denmark', flag: '🇩🇰' },
+  { code: '+358', country: 'Finland', flag: '🇫🇮' },
+  { code: '+353', country: 'Ireland', flag: '🇮🇪' },
+  { code: '+48', country: 'Poland', flag: '🇵🇱' },
+  { code: '+420', country: 'Czech Republic', flag: '🇨🇿' },
+  { code: '+36', country: 'Hungary', flag: '🇭🇺' },
+  { code: '+40', country: 'Romania', flag: '🇷🇴' },
+  { code: '+30', country: 'Greece', flag: '🇬🇷' },
+  { code: '+380', country: 'Ukraine', flag: '🇺🇦' },
+  { code: '+7', country: 'Russia', flag: '🇷🇺' },
+  { code: '+90', country: 'Turkey', flag: '🇹🇷' },
+  { code: '+371', country: 'Latvia', flag: '🇱🇻' },
+  { code: '+370', country: 'Lithuania', flag: '🇱🇹' },
+  { code: '+372', country: 'Estonia', flag: '🇪🇪' },
+  { code: '+421', country: 'Slovakia', flag: '🇸🇰' },
+  { code: '+386', country: 'Slovenia', flag: '🇸🇮' },
+  { code: '+385', country: 'Croatia', flag: '🇭🇷' },
+  { code: '+381', country: 'Serbia', flag: '🇷🇸' },
+  { code: '+387', country: 'Bosnia & Herzegovina', flag: '🇧🇦' },
+  { code: '+382', country: 'Montenegro', flag: '🇲🇪' },
+  { code: '+383', country: 'Kosovo', flag: '🇽🇰' },
+  { code: '+389', country: 'North Macedonia', flag: '🇲🇰' },
+  { code: '+355', country: 'Albania', flag: '🇦🇱' },
+  { code: '+359', country: 'Bulgaria', flag: '🇧🇬' },
+  { code: '+373', country: 'Moldova', flag: '🇲🇩' },
+  { code: '+375', country: 'Belarus', flag: '🇧🇾' },
+  { code: '+352', country: 'Luxembourg', flag: '🇱🇺' },
+  { code: '+356', country: 'Malta', flag: '🇲🇹' },
+  { code: '+354', country: 'Iceland', flag: '🇮🇸' },
+  { code: '+357', country: 'Cyprus', flag: '🇨🇾' },
+
+  // Asia
+  { code: '+91', country: 'India', flag: '🇮🇳' },
+  { code: '+86', country: 'China', flag: '🇨🇳' },
+  { code: '+81', country: 'Japan', flag: '🇯🇵' },
+  { code: '+82', country: 'South Korea', flag: '🇰🇷' },
+  { code: '+62', country: 'Indonesia', flag: '🇮🇩' },
+  { code: '+63', country: 'Philippines', flag: '🇵🇭' },
+  { code: '+84', country: 'Vietnam', flag: '🇻🇳' },
+  { code: '+66', country: 'Thailand', flag: '🇹🇭' },
+  { code: '+60', country: 'Malaysia', flag: '🇲🇾' },
+  { code: '+65', country: 'Singapore', flag: '🇸🇬' },
+  { code: '+95', country: 'Myanmar', flag: '🇲🇲' },
+  { code: '+855', country: 'Cambodia', flag: '🇰🇭' },
+  { code: '+856', country: 'Laos', flag: '🇱🇦' },
+  { code: '+880', country: 'Bangladesh', flag: '🇧🇩' },
+  { code: '+94', country: 'Sri Lanka', flag: '🇱🇰' },
+  { code: '+977', country: 'Nepal', flag: '🇳🇵' },
+  { code: '+92', country: 'Pakistan', flag: '🇵🇰' },
+  { code: '+93', country: 'Afghanistan', flag: '🇦🇫' },
+  { code: '+98', country: 'Iran', flag: '🇮🇷' },
+  { code: '+964', country: 'Iraq', flag: '🇮🇶' },
+  { code: '+963', country: 'Syria', flag: '🇸🇾' },
+  { code: '+961', country: 'Lebanon', flag: '🇱🇧' },
+  { code: '+962', country: 'Jordan', flag: '🇯🇴' },
+  { code: '+972', country: 'Israel', flag: '🇮🇱' },
+  { code: '+970', country: 'Palestine', flag: '🇵🇸' },
+  { code: '+966', country: 'Saudi Arabia', flag: '🇸🇦' },
+  { code: '+971', country: 'UAE', flag: '🇦🇪' },
+  { code: '+974', country: 'Qatar', flag: '🇶🇦' },
+  { code: '+965', country: 'Kuwait', flag: '🇰🇼' },
+  { code: '+973', country: 'Bahrain', flag: '🇧🇭' },
+  { code: '+968', country: 'Oman', flag: '🇴🇲' },
+  { code: '+967', country: 'Yemen', flag: '🇾🇪' },
+  { code: '+7', country: 'Kazakhstan', flag: '🇰🇿' },
+  { code: '+998', country: 'Uzbekistan', flag: '🇺🇿' },
+  { code: '+996', country: 'Kyrgyzstan', flag: '🇰🇬' },
+  { code: '+992', country: 'Tajikistan', flag: '🇹🇯' },
+  { code: '+993', country: 'Turkmenistan', flag: '🇹🇲' },
+  { code: '+994', country: 'Azerbaijan', flag: '🇦🇿' },
+  { code: '+995', country: 'Georgia', flag: '🇬🇪' },
+  { code: '+374', country: 'Armenia', flag: '🇦🇲' },
+  { code: '+886', country: 'Taiwan', flag: '🇹🇼' },
+  { code: '+852', country: 'Hong Kong', flag: '🇭🇰' },
+  { code: '+853', country: 'Macau', flag: '🇲🇴' },
+  { code: '+850', country: 'North Korea', flag: '🇰🇵' },
+  { code: '+976', country: 'Mongolia', flag: '🇲🇳' },
+
+  // Oceania
+  { code: '+61', country: 'Australia', flag: '🇦🇺' },
+  { code: '+64', country: 'New Zealand', flag: '🇳🇿' },
+  { code: '+679', country: 'Fiji', flag: '🇫🇯' },
+  { code: '+675', country: 'Papua New Guinea', flag: '🇵🇬' },
+  { code: '+677', country: 'Solomon Islands', flag: '🇸🇧' },
+  { code: '+678', country: 'Vanuatu', flag: '🇻🇺' },
+  { code: '+685', country: 'Samoa', flag: '🇼🇸' },
+  { code: '+676', country: 'Tonga', flag: '🇹🇴' },
+  { code: '+686', country: 'Kiribati', flag: '🇰🇮' },
+];
+
+
 interface FormData {
   name: string;
   email: string;
@@ -29,6 +222,13 @@ export default function App() {
     phone: '',
     location: '',
   });
+
+  // Add this state near your other state declarations
+  const [phonePrefix, setPhonePrefix] = useState('+233'); // Default to Ghana
+  const [isPrefixOpen, setIsPrefixOpen] = useState(false);
+  const [prefixSearch, setPrefixSearch] = useState('');
+  const prefixDropdownRef = useRef<HTMLDivElement>(null);
+
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +244,18 @@ export default function App() {
   const filteredCountries = countries.filter(country =>
     country.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Close prefix dropdown on outside click — add this alongside your other useEffects
+useEffect(() => {
+  const handleClickOutside = (e: MouseEvent) => {
+    if (prefixDropdownRef.current && !prefixDropdownRef.current.contains(e.target as Node)) {
+      setIsPrefixOpen(false);
+      setPrefixSearch('');
+    }
+  };
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => document.removeEventListener('mousedown', handleClickOutside);
+}, []);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -153,7 +365,7 @@ export default function App() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          phone: formData.phone,
+          phone: `${phonePrefix}${formData.phone}`,
           location: formData.location,
         }),
       });
@@ -578,7 +790,10 @@ export default function App() {
             }}
           >
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-xl" />
+            <div 
+              className="absolute inset-0 bg-black/70 backdrop-blur-xl" 
+              onClick={() => setIsModalOpen(false)}
+            />
             
             {/* Modal Content */}
             <motion.div
@@ -651,22 +866,82 @@ export default function App() {
                       </div>
 
                       {/* Phone Number */}
-                      <div>
-                        <div className={`flex items-center px-4 gap-3 rounded-xl bg-white/[0.04] border transition-colors duration-300 ${formErrors.phone ? 'border-red-500/50' : 'border-white/[0.06] focus-within:border-purple-500/40'}`}>
-                          <Phone className="w-4 h-4 text-white/25 flex-shrink-0" />
-                          <input
-                            type="tel"
-                            placeholder="Phone Number"
-                            value={formData.phone}
-                            onChange={(e) => handleInputChange('phone', e.target.value)}
-                            disabled={isLoading}
-                            className="bg-transparent border-none outline-none w-full text-sm py-3 placeholder:text-white/20 font-light disabled:opacity-50"
-                          />
-                        </div>
-                        {formErrors.phone && (
-                          <p className="mt-1 text-xs text-red-400/80 text-left pl-1">{formErrors.phone}</p>
-                        )}
-                      </div>
+                      {/* Phone Number */}
+<div>
+  <div className={`flex items-center rounded-xl bg-white/[0.04] border transition-colors duration-300 ${formErrors.phone ? 'border-red-500/50' : 'border-white/[0.06] focus-within:border-purple-500/40'}`}>
+    
+    {/* Prefix Dropdown */}
+    <div ref={prefixDropdownRef} className="relative flex-shrink-0">
+      <button
+        type="button"
+        onClick={() => setIsPrefixOpen(!isPrefixOpen)}
+        disabled={isLoading}
+        className="flex items-center gap-1.5 px-3 py-3 border-r border-white/[0.06] hover:bg-white/[0.04] transition-colors duration-200 rounded-l-xl disabled:opacity-50"
+      >
+        <span className="text-base leading-none">
+          {phonePrefixes.find(p => p.code === phonePrefix)?.flag}
+        </span>
+        <span className="text-xs text-white/60 font-light">{phonePrefix}</span>
+        <ChevronDown className={`w-3 h-3 text-white/25 transition-transform duration-300 ${isPrefixOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isPrefixOpen && (
+        <div className="absolute top-full left-0 mt-1 w-56 bg-[#1a1025] backdrop-blur-2xl border border-white/[0.1] rounded-xl shadow-2xl shadow-black/50 z-50 overflow-hidden">
+          {/* Search */}
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-white/[0.06]">
+            <Search className="w-3.5 h-3.5 text-white/30" />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={prefixSearch}
+              onChange={(e) => setPrefixSearch(e.target.value)}
+              className="bg-transparent border-none outline-none w-full text-xs placeholder:text-white/20 font-light text-white"
+            />
+          </div>
+          {/* List */}
+          <div className="max-h-48 overflow-y-auto scrollbar-thin">
+            {phonePrefixes
+              .filter(p =>
+                p.country.toLowerCase().includes(prefixSearch.toLowerCase()) ||
+                p.code.includes(prefixSearch)
+              )
+              .map((p) => (
+                <button
+                  key={`${p.code}-${p.country}`}
+                  type="button"
+                  onClick={() => {
+                    setPhonePrefix(p.code);
+                    setIsPrefixOpen(false);
+                    setPrefixSearch('');
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-xs font-light transition-colors duration-200 hover:bg-purple-500/20 ${
+                    phonePrefix === p.code ? 'text-purple-400 bg-purple-500/10' : 'text-white/60'
+                  }`}
+                >
+                  <span className="text-base">{p.flag}</span>
+                  <span className="flex-1 text-left">{p.country}</span>
+                  <span className="text-white/30">{p.code}</span>
+                </button>
+              ))}
+          </div>
+        </div>
+      )}
+    </div>
+
+    {/* Phone input */}
+    <input
+      type="tel"
+      placeholder="Phone Number"
+      value={formData.phone}
+      onChange={(e) => handleInputChange('phone', e.target.value)}
+      disabled={isLoading}
+      className="bg-transparent border-none outline-none flex-1 text-sm px-3 py-3 placeholder:text-white/20 font-light disabled:opacity-50"
+    />
+  </div>
+  {formErrors.phone && (
+    <p className="mt-1 text-xs text-red-400/80 text-left pl-1">{formErrors.phone}</p>
+  )}
+</div>
 
                       {/* Location Dropdown */}
                       <div ref={dropdownRef} className="relative">
