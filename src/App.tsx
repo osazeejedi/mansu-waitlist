@@ -298,14 +298,14 @@ useEffect(() => {
   }, [isModalOpen]);
 
   // Auto-close modal after success
-  useEffect(() => {
-    if (submitted && isModalOpen) {
-      const timer = setTimeout(() => {
-        setIsModalOpen(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [submitted, isModalOpen]);
+  // useEffect(() => {
+  //   if (submitted && isModalOpen) {
+  //     const timer = setTimeout(() => {
+  //       setIsModalOpen(false);
+  //     }, 3000);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [submitted, isModalOpen]);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -1039,7 +1039,7 @@ useEffect(() => {
   key="modal-success"
   initial={{ opacity: 0, scale: 0.9 }}
   animate={{ opacity: 1, scale: 1 }}
-  className="p-10 bg-[#0d0a14]/95 backdrop-blur-2xl rounded-2xl border border-purple-500/30 text-center shadow-[0_0_80px_rgba(139,92,246,0.15)]"
+  className="p-8 bg-[#0d0a14]/95 backdrop-blur-2xl rounded-2xl border border-purple-500/30 text-center shadow-[0_0_80px_rgba(139,92,246,0.15)] overflow-y-auto max-h-[90vh]"
 >
   <CheckCircle2 className="w-12 h-12 text-purple-400 mx-auto mb-4" />
   <h3 className="text-xl font-semibold mb-2">You're on the list!</h3>
