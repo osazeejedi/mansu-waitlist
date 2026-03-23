@@ -298,14 +298,7 @@ useEffect(() => {
   }, [isModalOpen]);
 
   // Auto-close modal after success
-  // useEffect(() => {
-  //   if (submitted && isModalOpen) {
-  //     const timer = setTimeout(() => {
-  //       setIsModalOpen(false);
-  //     }, 3000);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [submitted, isModalOpen]);
+  
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -801,7 +794,7 @@ useEffect(() => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full max-w-md"
+              className="relative w-full max-w-md overflow-visible"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close button */}
